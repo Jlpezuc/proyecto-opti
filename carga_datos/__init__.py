@@ -1,1 +1,1 @@
-from . import *
+from .nutrientes_minimos import nutrientes_minimos
