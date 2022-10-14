@@ -1,2 +1,6 @@
-__pycache__/
+# System files
 .DS_Store
+
+# Extras
+.vscode
+__pycache__/
