@@ -1,6 +1,6 @@
 import imp
 from gurobipy import GRB, Model, quicksum
-from carga_datos import nutrientes_minimos, alimentos, nutrientes_alimentos
+from carga_datos import nutrientes_minimos, alimentos, nutrientes_alimentos, valor_alimentos
 
 # ----------------Generamos Modelo ------------#
 model = Model()
@@ -19,8 +19,7 @@ d_ = range(1, 3 + 1)  # Tipos de dietas
 # ---------------- Importar Parametros ----------#
 
 presupuesto = ""
-costo_gramo = ""
-costo_almacenamiento = ""
+costo_gramo = valor_alimentos()
 min_calorias = ""
 max_calorias = ""
 min_macronutrientes = nutrientes_minimos()
@@ -34,7 +33,7 @@ cant_estudiantes_instituto = ""
 
 p = {(s): presupuesto[s - 1] for s in s_}
 cg = {(i): costo_gramo[i - 1] for i in i_}
-cc = {(i, j): costo_almacenamiento[i - 1][j - 1] for i in i_ for j in j_}
+cc = 0  # asignar valor
 mca = {(e): min_calorias[e - 1] for e in e_}
 MCA = {(e): max_calorias[e - 1] for e in e_}
 mn = {(n, e): min_macronutrientes[n][e] for n in n_ for e in e_}
