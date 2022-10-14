@@ -1,4 +1,6 @@
+import imp
 from gurobipy import GRB, Model, quicksum
+from carga_datos import nutrientes_minimos
 
 # ----------------Generamos Modelo ------------#
 model = Model()
@@ -11,7 +13,7 @@ t_ = range(1, 5 + 1)  # Días de clases en 1 semana
 e_ = range(6, 18 + 1)  # Edades
 i_ = range(1, 137 + 1)  # Alimentos que ofrece la Junaeb
 j_ = range(1, 9931 + 1)  # Numero colegios
-n_ = range(1, 3 + 1)  # Tipos de macronutrientes
+n_ = {"Proteina", "Lipidos", "Carbohidratos"}  # Tipos de macronutrientes
 d_ = range(1, 3 + 1)  # Tipos de dietas
 
 # ---------------- Importar Parametros ----------#
@@ -21,7 +23,7 @@ costo_gramo = ""
 costo_almacenamiento = ""
 min_calorias = ""
 max_calorias = ""
-min_macronutrientes = ""
+min_macronutrientes = nutrientes_minimos()
 calorias_alimento = ""
 cant_nutriente_alimento = ""
 cant_max_gramos_almacenaje = ""
@@ -35,7 +37,7 @@ cg = {(i): costo_gramo[i - 1] for i in i_}
 cc = {(i, j): costo_almacenamiento[i - 1][j - 1] for i in i_ for j in j_}
 mca = {(e): min_calorias[e - 1] for e in e_}
 MCA = {(e): max_calorias[e - 1] for e in e_}
-mn = {(n, e): min_macronutrientes[n - 1][e - 1] for n in n_ for e in e_}
+mn = {(n, e): min_macronutrientes[n][e] for n in n_ for e in e_}
 qca = {(i): calorias_alimento[i - 1] for i in i_}
 qn = {(n, i): cant_nutriente_alimento[n - 1][i - 1] for n in n_ for i in i_}
 qc = {(j): cant_max_gramos_almacenaje[j - 1] for j in j_}
@@ -43,7 +45,7 @@ g = {(i): masa_porcion_alimento[i - 1] for i in i_}
 qp = {(j, d): cant_estudiantes_instituto[j - 1][d - 1] for j in j_ for d in d_}
 a = ""  # agregar valor
 M = 1000000
-
+print(mn)
 # ---------------- Variables ------------------ #
 
 # Presupuesto destinado al colegio j para la semana s
