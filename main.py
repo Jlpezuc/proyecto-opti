@@ -1,6 +1,6 @@
 import imp
 from gurobipy import GRB, Model, quicksum
-from carga_datos import nutrientes_minimos
+from carga_datos import nutrientes_minimos, alimentos, nutrientes_alimentos
 
 # ----------------Generamos Modelo ------------#
 model = Model()
@@ -11,7 +11,7 @@ model.setParam("TimeLimit", 1800)  # Tiempo máximo en segundos
 s_ = range(1, 38 + 1)  # Semanas en 1 año escolar
 t_ = range(1, 5 + 1)  # Días de clases en 1 semana
 e_ = range(6, 18 + 1)  # Edades
-i_ = range(1, 137 + 1)  # Alimentos que ofrece la Junaeb
+i_ = alimentos()  # Alimentos que ofrece la Junaeb
 j_ = range(1, 9931 + 1)  # Numero colegios
 n_ = {"Proteina", "Lipidos", "Carbohidratos"}  # Tipos de macronutrientes
 d_ = range(1, 3 + 1)  # Tipos de dietas
@@ -25,7 +25,7 @@ min_calorias = ""
 max_calorias = ""
 min_macronutrientes = nutrientes_minimos()
 calorias_alimento = ""
-cant_nutriente_alimento = ""
+cant_nutriente_alimento = nutrientes_alimentos()
 cant_max_gramos_almacenaje = ""
 masa_porcion_alimento = ""
 cant_estudiantes_instituto = ""
@@ -45,7 +45,7 @@ g = {(i): masa_porcion_alimento[i - 1] for i in i_}
 qp = {(j, d): cant_estudiantes_instituto[j - 1][d - 1] for j in j_ for d in d_}
 a = ""  # agregar valor
 M = 1000000
-print(mn)
+
 # ---------------- Variables ------------------ #
 
 # Presupuesto destinado al colegio j para la semana s
