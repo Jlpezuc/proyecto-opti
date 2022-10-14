@@ -1,10 +1,10 @@
 import pandas
 
 
-def nutri_alimentos():
+def alimentos():
     alimentos = pandas.read_excel("./datos/alimentos.xlsx")
-    return alimentos.to_dict('dict')
+    return alimentos["Nombre"].to_list()
 
 
 if __name__ == "__main__":
-    print(nutri_alimentos())
+    print(alimentos())
