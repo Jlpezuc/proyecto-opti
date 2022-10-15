@@ -1,8 +1,9 @@
 import imp
 from gurobipy import GRB, Model, quicksum
-from carga_datos.cargar_datos import cargar_datos
+from carga_datos.cargar_datos import cargar_datos, cargar_multiples_datos
 from carga_datos.max_calorias import max_calorias
 from carga_datos.min_calorias import min_calorias
+from carga_datos.cargar_alimentos import cargar_alimentos
 # ----------------Generamos Modelo ------------#
 model = Model()
 model.setParam("TimeLimit", 1800)  # Tiempo máximo en segundos
@@ -12,8 +13,8 @@ model.setParam("TimeLimit", 1800)  # Tiempo máximo en segundos
 s_ = range(1, 38 + 1)  # Semanas en 1 año escolar
 t_ = range(1, 5 + 1)  # Días de clases en 1 semana
 e_ = range(6, 18 + 1)  # Edades
-i_ = alimentos()  # Alimentos que ofrece la Junaeb
-j_ = range(1, 9931 + 1)  # Numero colegios
+i_ = cargar_alimentos()  # Alimentos que ofrece la Junaeb
+j_ = range(1, 500 + 1)  # Numero colegios
 n_ = {"Proteina", "Lipidos", "Carbohidratos"}  # Tipos de macronutrientes
 d_ = range(1, 3 + 1)  # Tipos de dietas
 
@@ -23,25 +24,25 @@ presupuesto = cargar_datos("p_s.xlsx")
 costo_gramo = cargar_datos("cg_i.xlsx")
 min_calorias = min_calorias()
 max_calorias = max_calorias()
-min_macronutrientes = cargar_datos("mne_ne.xlsx")
+min_macronutrientes = cargar_multiples_datos("mne_ne.xlsx")
 calorias_alimento = cargar_datos("qca.xlsx")
-cant_nutriente_alimento = cargar_datos("qn_ni.xlsx")
+cant_nutriente_alimento = cargar_multiples_datos("qn_ni.xlsx")
 # masa_porcion_alimento = cargar_datos()
-cant_estudiantes_instituto = cargar_datos("qp_jd.xlsx")
+cant_estudiantes_instituto = cargar_multiples_datos("qp_jd.xlsx")
 
 # ---------------- Creación Parametros ----------#
 
-p = {(s): presupuesto[s - 1] for s in s_}
-cg = {(i): costo_gramo[i - 1] for i in i_}
+p = {(s): presupuesto[s] for s in s_}
+cg = {(i): costo_gramo[i] for i in i_}
 cc = 76.76
-mca = {(e): min_calorias[e - 1] for e in e_}
-MCA = {(e): max_calorias[e - 1] for e in e_}
+mca = {(e): min_calorias[e] for e in e_}
+MCA = {(e): max_calorias[e] for e in e_}
 mn = {(n, e): min_macronutrientes[n][e] for n in n_ for e in e_}
-qca = {(i): calorias_alimento[i - 1] for i in i_}
-qn = {(n, i): cant_nutriente_alimento[n - 1][i - 1] for n in n_ for i in i_}
+qca = {(i): calorias_alimento[i] for i in i_}
+qn = {(n, i): cant_nutriente_alimento[n][i] for n in n_ for i in i_}
 qc = 80000
 # g = {(i): masa_porcion_alimento[i - 1] for i in i_}
-qp = {(j, d): cant_estudiantes_instituto[j - 1][d - 1] for j in j_ for d in d_}
+qp = {(d, j): cant_estudiantes_instituto[d][j] for j in j_ for d in d_}
 a = 327
 M = 1000000
 
