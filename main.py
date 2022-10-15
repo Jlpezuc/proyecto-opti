@@ -33,13 +33,13 @@ cant_estudiantes_instituto = ""
 
 p = {(s): presupuesto[s - 1] for s in s_}
 cg = {(i): costo_gramo[i - 1] for i in i_}
-cc = 0  # asignar valor
+cc = 76.76
 mca = {(e): min_calorias[e - 1] for e in e_}
 MCA = {(e): max_calorias[e - 1] for e in e_}
 mn = {(n, e): min_macronutrientes[n][e] for n in n_ for e in e_}
 qca = {(i): calorias_alimento[i - 1] for i in i_}
 qn = {(n, i): cant_nutriente_alimento[n - 1][i - 1] for n in n_ for i in i_}
-qc = {(j): cant_max_gramos_almacenaje[j - 1] for j in j_}
+qc = 80000
 g = {(i): masa_porcion_alimento[i - 1] for i in i_}
 qp = {(j, d): cant_estudiantes_instituto[j - 1][d - 1] for j in j_ for d in d_}
 a = 327
