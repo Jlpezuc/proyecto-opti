@@ -42,7 +42,7 @@ qn = {(n, i): cant_nutriente_alimento[n - 1][i - 1] for n in n_ for i in i_}
 qc = {(j): cant_max_gramos_almacenaje[j - 1] for j in j_}
 g = {(i): masa_porcion_alimento[i - 1] for i in i_}
 qp = {(j, d): cant_estudiantes_instituto[j - 1][d - 1] for j in j_ for d in d_}
-a = ""  # agregar valor
+a = 327
 M = 1000000
 
 # ---------------- Variables ------------------ #
@@ -86,37 +86,42 @@ model.addConstrs(
     (Y[i, d, t, j, s] + Y[i, d, t, j, s] + Y[i, d, t, j, s] <= 1 for d in d_ for i in i_ for t in t_ for j in j_ for s in s_), name="R6")
 
 # R7
-model.addConstrs((mca[e] <= quicksum(Y[i, d, t, j, s] * g[i] * qca[i] for i in i_)
-                 for t in t_ for j in j_ for d in d_ for e in e_ for s in s_), name="R7")
-model.addConstrs((quicksum(Y[i, d, t, j, s] * g[i] * qca[i] for i in i_) <= MCA[e]
-                 for t in t_ for j in j_ for d in d_ for e in e_ for s in s_), name="R7")
+model.addConstrs((mca[e] <= quicksum(QS[i, d, t, j] * qca[i] for i in i_)
+                 for t in t_ for j in j_ for d in d_ for e in e_), name="R7")
+model.addConstrs((quicksum(QS[i, d, t, j] * qca[i] for i in i_) <= MCA[e]
+                 for t in t_ for j in j_ for d in d_ for e in e_), name="R7")
 
 # R8
-model.addConstrs((mn[n, e] <= quicksum(Y[i, d, t, j, s] * g[i] * qca[i] for i in i_)
-                 for e in e_ for d in d_ for t in t_ for n in n_ for j in j_ for s in s_), name="R8")
+model.addConstrs((mn[n, e] <= quicksum(QS[i, d, t, j] * qca[i] for i in i_)
+                 for e in e_ for d in d_ for t in t_ for n in n_ for j in j_), name="R8")
 
 # R9
 model.addConstrs((quicksum(Y[i, d, t, j, s] for i in i_) >=
                  2 for d in d_ for t in t_ for j in j_ for s in s_), name="R9")
 
 # R10
-model.addConstrs((quicksum(QA[i, j, s] for i in i_) <=
-                 qc[j] for s in s_ for j in j_), name="R10")
+model.addConstrs((QA[i, j, s] <= M * Z[s, j]
+                 for i in i_ for j in j_ for s in s_), name="R10") 
 
 # R11
-model.addConstrs((QA[i, j, s - 1] + QN[i, j, s] == QA[i, j, s] + quicksum(quicksum(QS[i, d, t, j] for t in t_)
-                 for d in d_) for i in i_ for j in j_ for s in s_[1:]), name="R11")
+model.addConstrs((quicksum(QA[i, j, s] for i in i_) <=
+                 qc[j] for s in s_ for j in j_), name="R11")
 
 # R12
-model.addConstrs((QN[i, j, s] == QA[i, j, s] + quicksum(quicksum(QS[i, d, t, j] for t in t_)
-                 for d in d_) for i in i_ for j in j_ for s in s_), name="R12")
+model.addConstrs((QA[i, j, s - 1] + QN[i, j, s] == QA[i, j, s] + quicksum(quicksum(QS[i, d, t, j] for t in t_)
+                 for d in d_) for i in i_ for j in j_ for s in s_[1:]), name="R12")
 
 # R13
+model.addConstrs((QN[i, j, s] == QA[i, j, s] + quicksum(quicksum(QS[i, d, t, j] for t in t_)
+                 for d in d_) for i in i_ for j in j_ for s in s_), name="R13")
+
+# R14
 model.addConstrs((MU <= Y[i, d, t, j, s] * g[i] * qca[i]
-                 for i in i_ for j in j_ for s in s_ for d in d_ for t in t_), name="R13")
+                 for i in i_ for j in j_ for s in s_ for d in d_ for t in t_), name="R14")
+
 
 # ---------------- Naturaleza de las variables ------------------ #
-model.addConstrs((L[j, s] >= 0 for s in s_ for j in j_), name="R14")
+model.addConstrs((L[j, s] >= 0 for s in s_ for j in j_), name="R15")
 
 # ---------------- Creacion de Funcion Objetivo ------------------ #
 # model.setObjective(quicksum(quicksum(quicksum(quicksum(
