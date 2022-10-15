@@ -51,7 +51,7 @@ M = 1000000
 # Presupuesto destinado al colegio j para la semana s
 L = model.addVars(j_, s_, vtype=GRB.INTEGER)
 # Cantidad total de gramos del alimento i a servir en el dia t en la dieta d en el instituto j
-QS = model.addVars(i_, d_, t_, j_, vtype=GRB.CONTINUOUS)
+QS = model.addVars(i_, d_, t_, j_, s_, vtype=GRB.CONTINUOUS)
 # Cantidad de gramos del alimento i que se almacena en el instituto j al final de la semana s
 QA = model.addVars(i_, j_, s_, vtype=GRB.CONTINUOUS)
 # Cantidad de gramos del aliemtno i que se destina al instituto j en la semana s
@@ -64,11 +64,11 @@ Z = model.addVars(t_, j_, vtype=GRB.BINARY)
 
 # ---------------- Creacion de Restricciones ------------------ #
 # R1
-model.addConstrs((Y[i, d, t, j, s] <= QS[i, d, t, j]
+model.addConstrs((Y[i, d, t, j, s] <= QS[i, d, t, j, s]
                 for i in i_ for d in d_ for t in t_ for j in j_ for s in s_), name="R1")
 
 # R2
-model.addConstrs((quicksum(quicksum(quicksum(Y[i, d, t, j, s] * a + cg[i][i] * QS[i, d, t, j] * qp[i, d][s] for d in d_)
+model.addConstrs((quicksum(quicksum(quicksum(Y[i, d, t, j, s] * a + cg[i][i] * QS[i, d, t, j, s] * qp[i, d][s] for d in d_)
                  for t in t_) + cc[i, j] * QA[i, j, s] for i in i_) <= L[j, s] for j in j_ for s in s_), name="R2")
 
 # R3
@@ -87,14 +87,14 @@ model.addConstrs(
     (Y[i, d, t, j, s] + Y[i, d, t, j, s] + Y[i, d, t, j, s] <= 1 for d in d_ for i in i_ for t in t_ for j in j_ for s in s_), name="R6")
 
 # R7
-model.addConstrs((mca[e] <= quicksum(QS[i, d, t, j] * qca[i] for i in i_)
-                 for t in t_ for j in j_ for d in d_ for e in e_), name="R7")
-model.addConstrs((quicksum(QS[i, d, t, j] * qca[i] for i in i_) <= MCA[e]
-                 for t in t_ for j in j_ for d in d_ for e in e_), name="R7")
+model.addConstrs((mca[e] <= quicksum(QS[i, d, t, j, s] * qca[i] for i in i_)
+                 for t in t_ for j in j_ for d in d_ for e in e_ for s in s_), name="R7")
+model.addConstrs((quicksum(QS[i, d, t, j, s] * qca[i] for i in i_) <= MCA[e]
+                 for t in t_ for j in j_ for d in d_ for e in e_ for s in s_), name="R7")
 
 # R8
-model.addConstrs((mn[n, e] <= quicksum(QS[i, d, t, j] * qca[i] for i in i_)
-                 for e in e_ for d in d_ for t in t_ for n in n_ for j in j_), name="R8")
+model.addConstrs((mn[n, e] <= quicksum(QS[i, d, t, j, s] * qca[i] for i in i_)
+                 for e in e_ for d in d_ for t in t_ for n in n_ for j in j_ for s in s_), name="R8")
 
 # R9
 model.addConstrs((quicksum(Y[i, d, t, j, s] for i in i_) >=
@@ -109,16 +109,16 @@ model.addConstrs((quicksum(QA[i, j, s] for i in i_) <=
                  qc[j] for s in s_ for j in j_), name="R11")
 
 # R12
-model.addConstrs((QA[i, j, s - 1] + QN[i, j, s] == QA[i, j, s] + quicksum(quicksum(QS[i, d, t, j] for t in t_)
+model.addConstrs((QA[i, j, s - 1] + QN[i, j, s] == QA[i, j, s] + quicksum(quicksum(QS[i, d, t, j, s] for t in t_)
                  for d in d_) for i in i_ for j in j_ for s in s_[1:]), name="R12")
 
 # R13
-model.addConstrs((QN[i, j, s] == QA[i, j, s] + quicksum(quicksum(QS[i, d, t, j] for t in t_)
+model.addConstrs((QN[i, j, s] == QA[i, j, s] + quicksum(quicksum(QS[i, d, t, j, s] for t in t_)
                  for d in d_) for i in i_ for j in j_ for s in s_), name="R13")
 
 # R14
-model.addConstrs((MU <= QS[i, d, t, j] * qca[i]
-                 for i in i_ for j in j_ for d in d_ for t in t_), name="R14")
+model.addConstrs((MU <= QS[i, d, t, j, s] * qca[i]
+                 for i in i_ for j in j_ for d in d_ for t in t_ for s in s_), name="R14")
 
 
 # ---------------- Naturaleza de las variables ------------------ #
