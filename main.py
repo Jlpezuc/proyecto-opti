@@ -68,7 +68,7 @@ model.addConstrs((Y[i, d, t, j, s] <= QS[i, d, t, j, s]
                 for i in i_ for d in d_ for t in t_ for j in j_ for s in s_), name="R1")
 
 # R2
-model.addConstrs((quicksum(quicksum(quicksum(Y[i, d, t, j, s] * a + cg[i][i] * QS[i, d, t, j, s] * qp[i, d][s] for d in d_)
+model.addConstrs((quicksum(quicksum(quicksum(Y[i, d, t, j, s] * a + cg[i] * QS[i, d, t, j, s] * qp[d, j] for d in d_)
                  for t in t_) + cc[i, j] * QA[i, j, s] for i in i_) <= L[j, s] for j in j_ for s in s_), name="R2")
 
 # R3
@@ -128,3 +128,15 @@ model.addConstrs((L[j, s] >= 0 for s in s_ for j in j_), name="R15")
 # model.setObjective(quicksum(quicksum(quicksum(quicksum(
 #     Y[i, t, d, j] * g[i] * qca[i] for i in i_) for t in t_) for d in d_) for j in j_) / len(t_), GRB.MAXIMIZE)
 model.setObjective(MU, GRB.MAXIMIZE)
+
+# Optimizamos
+model.optimize()
+
+# Veremos qué restricciones están activas
+print("\n"+"-"*9+" Restricciones Activas "+"-"*9)
+for constr in model.getConstrs():
+    if constr.getAttr("slack") == 0:
+        print(f"La restriccion {constr} está activa")
+
+# Veamos todas las soluciones posibles
+model.printAttr("X")
