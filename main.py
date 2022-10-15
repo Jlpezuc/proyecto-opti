@@ -51,7 +51,7 @@ M = 1000000
 # Presupuesto destinado al colegio j para la semana s
 L = model.addVars(j_, s_, vtype=GRB.INTEGER)
 # Cantidad total de gramos del alimento i a servir en el dia t en la dieta d en el instituto j
-QS = model.addVars(i_, t_, d_, j_, vtype=GRB.CONTINUOUS)
+QS = model.addVars(i_, d_, t_, j_, vtype=GRB.CONTINUOUS)
 # Cantidad de gramos del alimento i que se almacena en el instituto j al final de la semana s
 QA = model.addVars(i_, j_, s_, vtype=GRB.CONTINUOUS)
 # Cantidad de gramos del aliemtno i que se destina al instituto j en la semana s
@@ -59,13 +59,13 @@ QN = model.addVars(i_, j_, s_, vtype=GRB.CONTINUOUS)
 # 1 si se utiliza el alimento i en el dia t para la dieta d para el instituto j, 0 eoc
 Y = model.addVars(i_, d_, t_, j_, s_, vtype=GRB.BINARY)
 # variable auxiliar mu
-MU = model.addVars(vtype=GRB.CONTINUOUS)
+MU = model.addVar(vtype=GRB.CONTINUOUS)
 Z = model.addVars(t_, j_, vtype=GRB.BINARY)
 
 # ---------------- Creacion de Restricciones ------------------ #
 # R1
-model.addConstrs((Y[i, d, t, j, s] <= QS[i, d, t, j] *
-                 M for i in i_ for d in d_ for t in t_ for j in j_ for s in s_), name="R1")
+model.addConstrs((Y[i, d, t, j, s] <= QS[i, d, t, j]
+                for i in i_ for d in d_ for t in t_ for j in j_ for s in s_), name="R1")
 
 # R2
 model.addConstrs((quicksum(quicksum(quicksum(Y[i, d, t, j, s] * a + cg[i][i] * QS[i, d, t, j] * qp[i, d][s] for d in d_)
@@ -117,8 +117,8 @@ model.addConstrs((QN[i, j, s] == QA[i, j, s] + quicksum(quicksum(QS[i, d, t, j] 
                  for d in d_) for i in i_ for j in j_ for s in s_), name="R13")
 
 # R14
-model.addConstrs((MU <= Y[i, d, t, j, s] * g[i] * qca[i]
-                 for i in i_ for j in j_ for s in s_ for d in d_ for t in t_), name="R14")
+model.addConstrs((MU <= QS[i, d, t, j] * qca[i]
+                 for i in i_ for j in j_ for d in d_ for t in t_), name="R14")
 
 
 # ---------------- Naturaleza de las variables ------------------ #
