@@ -9,4 +9,4 @@ def cargar_datos(filename):
 
 
 if __name__ == "__main__":
-    print(cargar_archivo("nutrientes_recomendados.xlsx"))
+    print(cargar_datos("nutrientes_recomendados.xlsx"))
