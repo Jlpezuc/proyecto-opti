@@ -6,7 +6,7 @@ def min_calorias():
 
     valores = valores.set_index("Edad")
 
-    return valores.to_dict()["Minimo (kcal)"]
+    return valores.to_dict()["Minimo (cal)"]
 
 
 if __name__ == "__main__":

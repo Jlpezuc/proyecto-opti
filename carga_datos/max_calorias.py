@@ -6,7 +6,7 @@ def max_calorias():
 
     valores = valores.set_index("Edad")
 
-    return valores.to_dict()["Maximo (kcal)"]
+    return valores.to_dict()["Maximo (cal)"]
 
 
 if __name__ == "__main__":
