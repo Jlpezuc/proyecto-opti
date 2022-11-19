@@ -22,7 +22,8 @@ presupuesto = cargar_datos("p_s.xlsx")
 costo_gramo = cargar_datos("cg_i.xlsx")
 min_calorias = min_calorias()
 max_calorias = max_calorias()
-min_macronutrientes = cargar_multiples_datos("mne_n.xlsx")
+min_macronutrientes = {"Proteina": 0.25,
+                       "Lipidos": 0.25, "Carbohidratos": 0.45}
 calorias_alimento = cargar_datos("qca.xlsx")
 cant_nutriente_alimento = cargar_multiples_datos("qn_ni.xlsx")
 cant_estudiantes_instituto = cargar_datos("qp_jd.xlsx")
@@ -56,12 +57,13 @@ QN = model.addVars(i_, j_, s_, vtype=GRB.CONTINUOUS)
 Y = model.addVars(i_, t_, j_, s_, vtype=GRB.BINARY)
 # variable auxiliar mu
 MU = model.addVar(vtype=GRB.CONTINUOUS)
-Z = model.addVars(s_, j_, vtype=GRB.BINARY)  # 1 si se guarda alimento i en colegio j, 0 eoc.
+# 1 si se guarda alimento i en colegio j, 0 eoc.
+Z = model.addVars(s_, j_, vtype=GRB.BINARY)
 
 # ---------------- Creacion de Restricciones ------------------ #
 # R1
 model.addConstrs((M*Y[i, t, j, s] >= QS[i, t, j, s]
-                for i in i_ for t in t_ for j in j_ for s in s_), name="R1")
+                  for i in i_ for t in t_ for j in j_ for s in s_), name="R1")
 
 # R2
 model.addConstrs((quicksum(quicksum(Y[i, t, j, s] * a + cg[i] * QS[i, t, j, s]
@@ -80,7 +82,7 @@ model.addConstrs((quicksum(Y[i, t, j, s] for t in t_) + quicksum(Y[i, t, j, s - 
 
 # R6
 model.addConstrs(
-    (Y[i, t, j, s] + Y[i, t, j, s - 1] + Y[i, t, j, s - 2] <= 1 for i in i_ 
+    (Y[i, t, j, s] + Y[i, t, j, s - 1] + Y[i, t, j, s - 2] <= 1 for i in i_
      for t in t_ for j in j_ for s in s_[2:]), name="R6")
 
 # R7
@@ -103,11 +105,11 @@ model.addConstrs((quicksum(QA[i, j, s] for i in i_) <=
 
 # R11
 model.addConstrs((QA[i, j, s - 1] + QN[i, j, s] == QA[i, j, s] + quicksum(QS[i, t, j, s]
-                                            for t in t_) for i in i_ for j in j_ for s in s_[1:]), name="R11")
+                                                                          for t in t_) for i in i_ for j in j_ for s in s_[1:]), name="R11")
 
 # R12
 model.addConstrs((QN[i, j, s_[0]] == QA[i, j, s_[0]] + quicksum(QS[i, t, j, s_[0]] for t in t_)
-                for i in i_ for j in j_), name="R12")
+                  for i in i_ for j in j_), name="R12")
 
 
 # R13
@@ -116,13 +118,16 @@ model.addConstrs((MU <= quicksum(QS[i, t, j, s] * qca[i]
 
 # R15
 model.addConstrs((mn[n] * mca <= quicksum(qn[n, i] * QS[i, t, j, s] for i in i_)
-                   for n in n_ for t in t_ for j in j_ for s in s_), name="R15")
+                  for n in n_ for t in t_ for j in j_ for s in s_), name="R15")
 
 # ---------------- Naturaleza de las variables ------------------ #
 model.addConstrs((L[j, s] >= 0 for s in s_ for j in j_), name="R14_1")
-model.addConstrs((QA[i, j, s] >= 0 for s in s_ for j in j_ for i in i_), name="R14_2")
-model.addConstrs((QS[i, t, j, s] >= 0 for s in s_ for j in j_ for i in i_ for t in t_), name="R14_3")
-model.addConstrs((QN[i, j, s] >= 0 for s in s_ for j in j_ for i in i_), name="R14_4")
+model.addConstrs(
+    (QA[i, j, s] >= 0 for s in s_ for j in j_ for i in i_), name="R14_2")
+model.addConstrs(
+    (QS[i, t, j, s] >= 0 for s in s_ for j in j_ for i in i_ for t in t_), name="R14_3")
+model.addConstrs(
+    (QN[i, j, s] >= 0 for s in s_ for j in j_ for i in i_), name="R14_4")
 model.addConstr((MU >= 0), name="R14_5")
 
 # ---------------- Creacion de Funcion Objetivo ------------------ #
@@ -133,7 +138,8 @@ model.setObjective(MU, GRB.MAXIMIZE)
 # Optimizamos
 model.optimize()
 valor_objetivo = model.ObjVal
-print(f"El máximo de la cota inferior de calorías que puede recibir una persona es de: {round(valor_objetivo / 1000)} kcal")
+print(
+    f"El máximo de la cota inferior de calorías que puede recibir una persona es de: {round(valor_objetivo / 1000)} kcal")
 
 
 # Escribimos los archivos
@@ -149,7 +155,8 @@ with open("resultados/resultados_QS.csv", "w") as archivo:
         for t in t_:
             for j in j_:
                 for s in s_:
-                    archivo.write(f"\n{int(QS[i, t, j, s].x)}, {i}, {t}, {j}, {s}")
+                    archivo.write(
+                        f"\n{int(QS[i, t, j, s].x)}, {i}, {t}, {j}, {s}")
 
 with open("resultados/resultados_QA.csv", "w") as archivo:
     archivo.write("Variable QS: i, j, s")
@@ -171,7 +178,8 @@ with open("resultados/resultados_Y.csv", "w") as archivo:
         for t in t_:
             for j in j_:
                 for s in s_:
-                    archivo.write(f"\n{int(Y[i, t, j, s].x)}, {i}, {t}, {j}, {s}")
+                    archivo.write(
+                        f"\n{int(Y[i, t, j, s].x)}, {i}, {t}, {j}, {s}")
 
 with open("resultados/resultados_Z.csv", "w") as archivo:
     archivo.write("Variable Z: s, j")
