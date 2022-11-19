@@ -22,7 +22,7 @@ presupuesto = cargar_datos("p_s.xlsx")
 costo_gramo = cargar_datos("cg_i.xlsx")
 min_calorias = min_calorias()
 max_calorias = max_calorias()
-min_macronutrientes = cargar_multiples_datos("mne_ne.xlsx")
+min_macronutrientes = cargar_multiples_datos("mne_n.xlsx")
 calorias_alimento = cargar_datos("qca.xlsx")
 cant_nutriente_alimento = cargar_multiples_datos("qn_ni.xlsx")
 cant_estudiantes_instituto = cargar_datos("qp_jd.xlsx")
@@ -40,7 +40,7 @@ qn = {(n, i): cant_nutriente_alimento[n][i] for n in n_ for i in i_}
 qc = 80000
 qp = {(j): cant_estudiantes_instituto[j] for j in j_}
 a = 327
-M = 100
+M = 10**6
 
 # ---------------- Variables ------------------ #
 
@@ -60,7 +60,7 @@ Z = model.addVars(s_, j_, vtype=GRB.BINARY)  # 1 si se guarda alimento i en cole
 
 # ---------------- Creacion de Restricciones ------------------ #
 # R1
-model.addConstrs((Y[i, t, j, s] <= QS[i, t, j, s]
+model.addConstrs((M*Y[i, t, j, s] >= QS[i, t, j, s]
                 for i in i_ for t in t_ for j in j_ for s in s_), name="R1")
 
 # R2
@@ -109,13 +109,14 @@ model.addConstrs((QA[i, j, s - 1] + QN[i, j, s] == QA[i, j, s] + quicksum(QS[i, 
 model.addConstrs((QN[i, j, s_[0]] == QA[i, j, s_[0]] + quicksum(QS[i, t, j, s_[0]] for t in t_)
                 for i in i_ for j in j_), name="R12")
 
-model.addConstrs((QS[i, t, j, s] * qca[i] <= 100000
-                 for i in i_ for j in j_ for t in t_ for s in s_), name="R15")
 
 # R13
 model.addConstrs((MU <= quicksum(QS[i, t, j, s] * qca[i]
                  for i in i_) for j in j_ for t in t_ for s in s_), name="R13")
 
+# R15
+model.addConstrs((mn[n] * mca <= quicksum(qn[n, i] * QS[i, t, j, s] for i in i_)
+                   for n in n_ for t in t_ for j in j_ for s in s_), name="R15")
 
 # ---------------- Naturaleza de las variables ------------------ #
 model.addConstrs((L[j, s] >= 0 for s in s_ for j in j_), name="R14_1")
@@ -209,4 +210,3 @@ with open("resultados/suma_calorias_por_alimento.csv", "w") as archivo:
 
 with open("resultados/suma_gramos_por_alimento.csv", "w") as archivo:
     archivo.write(suma_gramos_por_alimento)
-
