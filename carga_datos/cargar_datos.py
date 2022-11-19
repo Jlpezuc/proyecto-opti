@@ -17,5 +17,5 @@ def cargar_multiples_datos(filename):
 
 
 if __name__ == "__main__":
-    print(cargar_multiples_datos("qn_ni2.xlsx"))
+    print(cargar_multiples_datos("mne_n.xlsx"))
     # print(cargar_multiples_datos("mne_ne.xlsx"))
