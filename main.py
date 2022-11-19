@@ -41,7 +41,8 @@ qn = {(n, i): cant_nutriente_alimento[n][i] for n in n_ for i in i_}
 qc = 80000
 qp = {(j): cant_estudiantes_instituto[j] for j in j_}
 a = 327
-M = 10**6
+M_1 = 10**6
+M_2 = 10**2
 
 # ---------------- Variables ------------------ #
 
@@ -96,7 +97,7 @@ model.addConstrs((quicksum(Y[i, t, j, s] for i in i_) >=
                  5 for t in t_ for j in j_ for s in s_), name="R8")
 
 # R9
-model.addConstrs((QA[i, j, s] <= M * Z[s, j]
+model.addConstrs((QA[i, j, s] <= M_2 * Z[s, j]
                  for i in i_ for j in j_ for s in s_), name="R9")
 
 # R10
@@ -202,9 +203,9 @@ with open("resultados/presupuesto_semestral.csv", "w") as archivo:
 
 suma_cal_por_alimento = ""
 suma_gramos_por_alimento = ""
-for s in s_:
-    for t in t_:
-        for j in j_:
+for j in j_:
+    for s in s_:
+        for t in t_:
             for i in i_:
                 if int(QS[i, t, j, s].x) != 0:
                     x = f"\nEn la semana {s} en el día {t} para el instituto {j} se consumen {int(int(QS[i, t, j, s].x) * qca[i])} cal del alimento {i}"
