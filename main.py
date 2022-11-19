@@ -63,7 +63,7 @@ Z = model.addVars(s_, j_, vtype=GRB.BINARY)
 
 # ---------------- Creacion de Restricciones ------------------ #
 # R1
-model.addConstrs((M*Y[i, t, j, s] >= QS[i, t, j, s]
+model.addConstrs((M_1 * Y[i, t, j, s] >= QS[i, t, j, s]
                   for i in i_ for t in t_ for j in j_ for s in s_), name="R1")
 
 # R2
@@ -179,8 +179,9 @@ with open("resultados/resultados_Y.csv", "w") as archivo:
         for t in t_:
             for j in j_:
                 for s in s_:
-                    archivo.write(
-                        f"\n{int(Y[i, t, j, s].x)}, {i}, {t}, {j}, {s}")
+                    if Y[i, t, j, s].x != 0:
+                        archivo.write(
+                            f"\n{int(Y[i, t, j, s].x)}, {i}, {t}, {j}, {s}")
 
 with open("resultados/resultados_Z.csv", "w") as archivo:
     archivo.write("Variable Z: s, j")
